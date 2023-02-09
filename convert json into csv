@@ -1,0 +1,37 @@
+import csv
+import json
+
+with open('data.csv', 'r') as f:
+    reader = csv.reader(f)
+    json_strings = [row[0] for row in reader]
+
+json_data = [json.loads(j) for j in json_strings]
+json_data1 = [json.loads(j) for j in json_strings]
+
+flat_data = {}
+def flatten(x, name='', acc=flat_data):
+    if type(x) is dict:
+        for a in x:
+            flatten(x[a], name + a + '_', acc)
+    elif type(x) is list:
+        i = 0
+        for a in x:
+            flatten(a, name + str(i) + '_', acc)
+            i += 1
+    else:
+        acc[name[:-1]] = x
+
+field_names = set()
+for j in json_data:
+    flatten(j)
+
+headers=flat_data.keys()
+
+with open("output.csv", "w", newline='') as f:
+    writer = csv.writer(f)
+    writer.writerow(headers)
+    for j in json_data1:
+        flat_data.clear()
+        flatten(j)
+        flat_data = [j.get(header, "") for header in headers]
+        writer.writerow(flat_data)
